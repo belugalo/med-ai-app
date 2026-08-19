@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   Int            @id @default(autoincrement())
+  email                String         @unique
+  password             String
+  name                 String?
+  role                 String         @default("PATIENT") // "PATIENT" | "DOCTOR" | "ADMIN"
+  phone                String?
+  createdAt            DateTime       @default(now())
+  
+  doctor               Doctor?
+  patientAppointments  Appointment[]  @relation("PatientAppointments")
+  patientPrescriptions Prescription[] @relation("PatientPrescriptions")
+  chatSessions         ChatSession[]
+}
+
+model Doctor {
+  id             Int            @id @default(autoincrement())
+  userId         Int            @unique
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialization String
+  licenseNumber  String
+  bio            String?
+  hospital       String?        @default("MedAI Health Center")
+  experienceYrs  Int?           @default(5)
+  rating         Float?         @default(4.9)
+  createdAt      DateTime       @default(now())
+  
+  appointments   Appointment[]  @relation("DoctorAppointments")
+  prescriptions  Prescription[] @relation("DoctorPrescriptions")
+}
+
+model Appointment {
+  id          Int      @id @default(autoincrement())
+  patientId   Int
+  patient     User     @relation("PatientAppointments", fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId    Int
+  doctor      Doctor   @relation("DoctorAppointments", fields: [doctorId], references: [id], onDelete: Cascade)
+  scheduledAt DateTime
+  status      String   @default("PENDING") // "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED"
+  reason      String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Prescription {
+  id          Int      @id @default(autoincrement())
+  doctorId    Int
+  doctor      Doctor   @relation("DoctorPrescriptions", fields: [doctorId], references: [id], onDelete: Cascade)
+  patientId   Int
+  patient     User     @relation("PatientPrescriptions", fields: [patientId], references: [id], onDelete: Cascade)
+  medications String   // JSON stringified array of medicines
+  notes       String?
+  createdAt   DateTime @default(now())
+}
+
+model ChatSession {
+  id        Int       @id @default(autoincrement())
+  patientId Int
+  patient   User      @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId  Int?
+  title     String?   @default("General Health Consultation")
+  createdAt DateTime  @default(now())
+  messages  Message[]
+}
+
+model Message {
+  id        Int         @id @default(autoincrement())
+  sessionId Int
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  senderId  Int?
+  role      String      // "patient" | "bot" | "doctor"
+  content   String
+  meta      String?     // JSON stringified structured metadata (risk, suggestions, etc.)
+  createdAt DateTime    @default(now())
+}
