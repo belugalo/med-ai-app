@@ -5,7 +5,9 @@
   "license": "MIT",
   "scripts": {
     "dev": "node src/index.js",
+    "build": "npx prisma generate && npx prisma db push",
     "start": "node src/index.js",
+    "postinstall": "npx prisma generate",
     "prisma:migrate": "npx prisma migrate dev --name init",
     "prisma:generate": "npx prisma generate",
     "prisma:push": "npx prisma db push",
