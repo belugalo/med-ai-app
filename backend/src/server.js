@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 const authRoutes = require('./routes/auth');
 const chatRoutes = require('./routes/chat');
 const appointmentRoutes = require('./routes/appointments');
@@ -26,6 +28,18 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/doctors', doctorRoutes);
 
+// Serve built frontend in production if dist exists
+const distPath = path.resolve(__dirname, '../../frontend/dist');
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path === '/health') {
+      return next();
+    }
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
+
 // Global Error Handler
 app.use((err, req, res, next) => {
   console.error('Unhandled server error:', err);
@@ -33,3 +47,4 @@ app.use((err, req, res, next) => {
 });
 
 module.exports = app;
+
