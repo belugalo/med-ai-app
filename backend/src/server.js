@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 // Health check
-app.get('/health', (req, res) => {
+app.get(['/health', '/api/health'], (req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -22,11 +22,11 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Mount modular API routes
-app.use('/api/auth', authRoutes);
-app.use('/api/chat', chatRoutes);
-app.use('/api/appointments', appointmentRoutes);
-app.use('/api/doctors', doctorRoutes);
+// Mount modular API routes (supports both /api/xxx and /xxx)
+app.use(['/api/auth', '/auth'], authRoutes);
+app.use(['/api/chat', '/chat'], chatRoutes);
+app.use(['/api/appointments', '/appointments'], appointmentRoutes);
+app.use(['/api/doctors', '/doctors'], doctorRoutes);
 
 // Serve built frontend in production if dist exists
 const distPath = path.resolve(__dirname, '../../frontend/dist');

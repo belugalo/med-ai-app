@@ -3,17 +3,32 @@
   "version": "1.0.0",
   "private": true,
   "description": "MedAI - Intelligent Healthcare & Symptom Triage Platform",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
   "scripts": {
     "dev:backend": "npm --prefix backend run dev",
     "dev:frontend": "npm --prefix frontend run dev",
     "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"blue,green\" \"npm run dev:backend\" \"npm run dev:frontend\"",
     "install:all": "npm install && npm --prefix backend install && npm --prefix frontend install",
-    "build": "npm --prefix backend install && npm --prefix frontend install && npm --prefix backend run prisma:generate && npm --prefix backend run prisma:push && npm --prefix frontend run build",
-    "seed": "npm --prefix backend run seed",
+    "build:backend": "npm --prefix backend run build",
     "build:frontend": "npm --prefix frontend run build",
+    "build": "npm --prefix backend run build && npm --prefix frontend run build",
+    "seed": "npm --prefix backend run seed",
     "start": "npm --prefix backend start"
   },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "sqlite3": "^5.1.7"
+  },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "prisma": "^5.22.0"
   }
 }
